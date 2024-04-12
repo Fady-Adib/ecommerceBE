@@ -20,7 +20,8 @@ cart.totalPrice=totalPrice
 return totalPrice
 }
 const applyDiscount=async(cart)=>{
-  let discount = cart.discount || 0
+  let discount
+  cart.discount ? (discount = cart.discount) : discount=0
 cart.totalPriceAfterDiscount =cart.totalPrice - (cart.totalPrice * discount) / 100;
 }
 export const createCart= errHandler(async (req, res, next) => {
