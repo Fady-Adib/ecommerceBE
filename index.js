@@ -6,7 +6,7 @@ import appErr from "./src/utils/handler/appErr.js";
 import GlobalErrHandler from "./src/utils/handler/globalErrHandlers.js";
 import routes from "./src/initRoutes.js";
 import cors from "cors";
-dotenv.config({ path: path.resolve("config/.env") });
+dotenv.config();
 const app = express();
 
 const port = process.env.PORT || 3000;
