@@ -103,6 +103,7 @@ export const checkout = errHandler(async (req, res, next) => {
     discount: FoundedCart.discount,
     shippingAddress: address,
   });
+  console.log(order);
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
