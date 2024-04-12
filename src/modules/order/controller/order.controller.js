@@ -106,14 +106,13 @@ export const checkout = errHandler(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
-        price_data: {
+        
           currency: "egp",
           product_data: {
             name: "Total Price", // Display name for the total price
           },
           unit_amount: FoundedCart.totalPriceAfterDiscount * 100, // Convert total price to cents
-        },
-        quantity: 1,
+        
         metadata: address,
       },
     ],
