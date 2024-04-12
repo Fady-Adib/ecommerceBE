@@ -92,6 +92,7 @@ export const getAllOrders = errHandler(async (req, res, next) => {
 
 });
 export const checkout = errHandler(async (req, res, next) => {
+    let { addressId } = req.body;
   let FoundedCart = await cartModel.findOne({ user: req.user._id });
   let address = req.user.addresses.find((ele) => ele._id == addressId);
   if (!address) return next(new appErr("this address is not exists"));
