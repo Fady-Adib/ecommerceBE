@@ -49,7 +49,7 @@ export const updateCategory = errHandler(async (req, res, next) => {
   }
   let foundedCategory = await categoryModel.findById(id);
   if (!foundedCategory) return next(new appErr("this category is not exists"));
-  console.log(req.file);
+
   if (req.file) {
     cloudinary.uploader.upload(
       req.file.path,

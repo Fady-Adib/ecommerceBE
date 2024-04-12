@@ -10,7 +10,6 @@ export const dbConnection = async () => {
       console.log(`db connected in ${process.env.DB_URL_ONLINE}`);
     })
     .catch((err) => {
-      console.log(process.env.DB_URL_ONLINE);
       console.log({ msg: "fail connect to db", err });
     });
 };

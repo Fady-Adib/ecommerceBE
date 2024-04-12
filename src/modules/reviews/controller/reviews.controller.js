@@ -52,7 +52,7 @@ export const deleteReview = errHandler(async (req, res, next) => {
    let foundedReview = await reviewModel.findById(id);
   
    if (!foundedReview) return next(new appErr("this review is not exists"));
-   console.log(foundedReview.user, req.user._id);
+
    if (foundedReview.user.toString() != req.user._id.toString())
      return next(
        new appErr("only user who has reviewed this review can delete this")

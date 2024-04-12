@@ -137,7 +137,6 @@ export const getAllProduct = errHandler(async (req, res, next) => {
     );
     apiFeature.pagination().search().filter().sort().fields();
     let allProduct = await apiFeature.dbQuery;
-console.log(allProduct);
     res.json({
       msg: "success",
       allProduct,
