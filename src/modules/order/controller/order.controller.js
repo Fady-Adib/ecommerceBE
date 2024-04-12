@@ -5,13 +5,13 @@ import errHandler from "../../../utils/handler/errHandlers.js";
 import appErr from "../../../utils/handler/appErr.js";
 import ApiFeature from "../../../utils/api.feature.js";
 import productModel from "../../../../db/models/product.schema.js";
-
-
 import cartModel from "../../../../db/models/cart.schema.js";
 import couponModel from "../../../../db/models/Coupon.schema.js";
 import orderModel from "../../../../db/models/order.schema.js";
-
-
+import Stripe from "stripe";
+const stripe = new Stripe(
+  "sk_test_51NxC9KATJsVBadGG7imBN8PphmqzfQuOOW6VaJQhyXwWCstF0CY1UmGc5VoOiMiXetISvt15G5PQ1BFYMPjU56DO00h5c7yOLF"
+);
 
 
 const calcPrice= async(cart)=>{
@@ -28,7 +28,6 @@ export const createCashOrder= errHandler(async (req, res, next) => {
 console.log(req.user);
 let FoundedCart=await cartModel.findOne({user:req.user._id})
 let address =req.user.addresses.find((ele) => ele._id == addressId);
-console.log(address);
 if (!address) return next(new appErr("this address is not exists"));
 let order = new orderModel({
   user: req.user._id,
@@ -92,48 +91,39 @@ export const getAllOrders = errHandler(async (req, res, next) => {
  });
 
 });
-export const updateCart = errHandler(async (req, res, next) => {   
-  let { product } = req.body;
+export const checkout = errHandler(async (req, res, next) => {
   let FoundedCart = await cartModel.findOne({ user: req.user._id });
-  let foundedProduct = await productModel.findById(product).select("price");
-  if (!foundedProduct) return next(new appErr("this product is not exists"));
-  req.body.price = foundedProduct.price;
-  if (FoundedCart) {
-    let item = FoundedCart.cartItems.find(
-      (ele) => ele.product == req.body.product
-    );
-    if (item) {
-      item.quantity = req.body.quantity || 1;
-      if (item.quantity==0) {
-          FoundedCart.cartItems.pull(item);
-      }
-      calcPrice(FoundedCart);
-          applyDiscount(FoundedCart);
-      let updateCart = await FoundedCart.save();
-      res.json({
-        msg: "success",
-        updateCart,
-      });
-    } else {
-      return next(new appErr("this item is not exists"));
-    }
-  } 
-});
-export const applyCoupon = errHandler(async (req, res, next) => {
-  let { code } = req.params;
-  let foundedCoupon = await couponModel.findOne({ code });
-if (!foundedCoupon) return next(new appErr("this coupon is not available"));
-let couponTime = Number(foundedCoupon.expires);
-let timeNow = Number(new Date());
-if (timeNow > couponTime)  return next(new appErr("this coupon is expired"));
- let FoundedCart = await cartModel.findOne({ user: req.user._id });
-if (!FoundedCart) return next(new appErr("you didn't have a cart"));
- FoundedCart.discount = foundedCoupon.discount
- applyDiscount(FoundedCart);
-//  FoundedCart.totalPriceAfterDiscount = FoundedCart.totalPrice-(FoundedCart.totalPrice * foundedCoupon.discount) / 100
- let updatedCart =await FoundedCart.save()  
+  let address = req.user.addresses.find((ele) => ele._id == addressId);
+  if (!address) return next(new appErr("this address is not exists"));
+  let order = new orderModel({
+    user: req.user._id,
+    cartItems: FoundedCart.cartItems,
+    totalOrderPrice: FoundedCart.totalPriceAfterDiscount,
+    discount: FoundedCart.discount,
+    shippingAddress: address,
+  });
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: "egp",
+          product_data: {
+            name: "Total Price", // Display name for the total price
+          },
+          unit_amount: FoundedCart.totalPriceAfterDiscount * 100, // Convert total price to cents
+        },
+        quantity: 1,
+        metadata: address,
+      },
+    ],
+    mode: "payment",
+    success_url: `https://binostore.onrender.com/api/v1/cart`,
+    cancel_url: `https://binostore.onrender.com/api/v1/order`,
+    customer_email: req.user.email,
+    client_reference_id: FoundedCart._id,
+  });
   res.json({
     msg: "success",
-    updatedCart,
+    session,
   });
 });

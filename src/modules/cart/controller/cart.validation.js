@@ -13,3 +13,4 @@ export const idVal = Joi.object({
 export const applyCoupon = Joi.object({
   code: Joi.string().required().min(4).max(15),
 });
+

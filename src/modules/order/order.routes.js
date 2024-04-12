@@ -18,13 +18,14 @@ orderRoutes
       validation(orderVal.addOrder),
       orderCon.createCashOrder
     )
-    .patch(
-      ac.auth,
-      ac.allowTo("admin", "user"),
-      validation(orderVal.addCart),
-      foundedCoupon,
-      orderCon.updateCart
-    );
+    orderRoutes
+      .route("/checkout")
+      .post(
+        ac.auth,
+        ac.allowTo("admin", "user"),
+        validation(orderVal.addOrder),
+        orderCon.checkout
+      );
   orderRoutes
     .route("/:id")
     .delete(
@@ -35,12 +36,5 @@ orderRoutes
     );
 
   
-orderRoutes
-  .route("/coupon/:code")
-  .post(
-    ac.auth,
-    ac.allowTo("admin", "user"),
-    validation(orderVal.applyCoupon),
-    orderCon.applyCoupon
-  );
+
 export default orderRoutes;

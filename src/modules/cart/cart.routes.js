@@ -41,4 +41,5 @@ cartRoutes
     validation(cartVal.applyCoupon),
     cartCon.applyCoupon
   );
+  
 export default cartRoutes;

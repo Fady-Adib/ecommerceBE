@@ -30,4 +30,5 @@ const validation = (valSchema) => {
     }
   };
 };
+
 export default validation;
